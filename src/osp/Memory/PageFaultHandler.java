@@ -73,6 +73,6 @@ public class PageFaultHandler extends IflPageFaultHandler {
 		@OSPProject Memory
 	*/
 	public static int do_handlePageFault(ThreadCB thread, int referenceType, PageTableEntry page) {
-		
+		return 0;
 	}
 }

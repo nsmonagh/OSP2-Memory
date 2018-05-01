@@ -46,7 +46,7 @@ public class MMU extends IflMMU {
 	   @OSPProject Memory
 	*/
 	static public PageTableEntry do_refer(int memoryAddress, int referenceType, ThreadCB thread) {
-		
+		return null;
 	}
 
 	/** Called by OSP after printing an error message. The student can

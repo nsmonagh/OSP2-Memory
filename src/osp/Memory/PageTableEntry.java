@@ -36,7 +36,7 @@ public class PageTableEntry extends IflPageTableEntry {
 	@OSPProject Memory
 	 */
 	public int do_lock(IORB iorb) {
-		
+		return 0;
 	}
 
 	/** This method decreases the lock count on the page by one. 
