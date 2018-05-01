@@ -16,7 +16,7 @@ import osp.Interrupts.*;
 	@OSPProject Memory
 */
 public class MMU extends IflMMU {
-	FrameTableEntry[] frameTable;
+	static FrameTableEntry[] frameTable;
 	
 	public static void init() {
 		frameTable = new FrameTableEntry[MMU.getFrameTableSize()];
