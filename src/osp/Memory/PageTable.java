@@ -15,7 +15,7 @@ import osp.Hardware.*;
 */
 
 public class PageTable extends IflPageTable {
-	static PageTableEntry[] pageTable;
+	PageTableEntry[] pageTable;
 	
 	public PageTable(TaskCB ownerTask) {
 		super(ownerTask);
@@ -29,6 +29,6 @@ public class PageTable extends IflPageTable {
 	   @OSPProject Memory
 	*/
 	public void do_deallocateMemory() {
-		pageTable;
+		
 	}
 }

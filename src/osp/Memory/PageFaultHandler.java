@@ -73,6 +73,28 @@ public class PageFaultHandler extends IflPageFaultHandler {
 		@OSPProject Memory
 	*/
 	public static int do_handlePageFault(ThreadCB thread, int referenceType, PageTableEntry page) {
+		if (page.isValid())
+			return FAILURE;
+		else if (/*if all frames are locked/reserved*/page.isValid())
+			return NotEnoughMemory;
+		else if (/*if thread that caused the page fault can be killed*/page.isValid())
+			return FAILURE;
+		
+		SystemEvent event = new SystemEvent(userOption);
+
+		switch (referenceType) {
+			case MemoryRead:
+				
+				break;
+			case MemoryWrite:
+				
+				break;
+			case MemoryLock:
+				
+				break;
+		}
+		event.notifyThreads();
+		ThreadCB.dispatch();
 		return 0;
 	}
 }

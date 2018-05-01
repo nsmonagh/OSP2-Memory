@@ -16,14 +16,10 @@ import osp.Interrupts.*;
 	@OSPProject Memory
 */
 public class MMU extends IflMMU {
-	/** 
-		This method is called once before the simulation starts. 
-	Can be used to initialize the frame table and other static variables.
-
-		@OSPProject Memory
-	*/
+	FrameTableEntry[] frameTable;
+	
 	public static void init() {
-		
+		frameTable = new FrameTableEntry[MMU.getFrameTableSize()];
 	}
 
 	/**
