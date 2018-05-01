@@ -18,7 +18,6 @@ import osp.IFLModules.*;
 public class PageTableEntry extends IflPageTableEntry {
 	public PageTableEntry(PageTable ownerPageTable, int pageNumber) {
 		super(ownerPageTable, pageNumber);
-		//more
 	}
 
 	/**
@@ -36,7 +35,12 @@ public class PageTableEntry extends IflPageTableEntry {
 	@OSPProject Memory
 	 */
 	public int do_lock(IORB iorb) {
-		return 0;
+		
+		if (!isValid()) {
+			PageFaultHandler.handlePageFault(getValidatingThread(), );
+		}
+		
+		return SUCCESS;
 	}
 
 	/** This method decreases the lock count on the page by one. 
@@ -47,5 +51,7 @@ public class PageTableEntry extends IflPageTableEntry {
 	*/
 	public void do_unlock() {
 		
+		if (getLockCount() > 0)
+			FrameTableEntry.decrementLockCount();
 	}
 }

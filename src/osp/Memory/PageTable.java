@@ -15,9 +15,11 @@ import osp.Hardware.*;
 */
 
 public class PageTable extends IflPageTable {
+	static PageTableEntry[] pageTable;
+	
 	public PageTable(TaskCB ownerTask) {
 		super(ownerTask);
-		//more
+		pageTable = new PageTableEntry[(int) Math.pow(2, MMU.getPageAddressBits())];
 	}
 
 	/**
@@ -27,6 +29,6 @@ public class PageTable extends IflPageTable {
 	   @OSPProject Memory
 	*/
 	public void do_deallocateMemory() {
-		
+		pageTable;
 	}
 }
