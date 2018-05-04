@@ -6,20 +6,12 @@ import osp.Utilities.*;
 import osp.IFLModules.*;
 import osp.Hardware.*;
 
-/**
-	The PageTable class represents the page table for a given task.
-	A PageTable consists of an array of PageTableEntry objects.  This
-	page table is of the non-inverted type.
-
-	@OSPProject Memory
-*/
-
 public class PageTable extends IflPageTable {
-	PageTableEntry[] pageTable;
+	PageTableEntry[] pages;
 	
 	public PageTable(TaskCB ownerTask) {
 		super(ownerTask);
-		pageTable = new PageTableEntry[(int) Math.pow(2, MMU.getPageAddressBits())];
+		pages = new PageTableEntry[(int) Math.pow(2, MMU.getPageAddressBits())];
 	}
 
 	/**
@@ -29,6 +21,10 @@ public class PageTable extends IflPageTable {
 	   @OSPProject Memory
 	*/
 	public void do_deallocateMemory() {
-		
+		PageTableEntry.getFrame();
+		PageTableEntry[] taskPageTable = getTask().getPageTable().pages;
+		for (PageTableEntry page : taskPageTable) {
+			setPage()
+		}
 	}
 }

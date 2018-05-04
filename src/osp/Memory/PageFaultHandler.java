@@ -11,13 +11,6 @@ import osp.Interrupts.*;
 import osp.Utilities.*;
 import osp.IFLModules.*;
 
-/**
-	The page fault handler is responsible for handling a page
-	fault.  If a swap in or swap out operation is required, the page fault
-	handler must request the operation.
-
-	@OSPProject Memory
-*/
 public class PageFaultHandler extends IflPageFaultHandler {
 	/**
 		This method handles a page fault. 
@@ -73,28 +66,48 @@ public class PageFaultHandler extends IflPageFaultHandler {
 		@OSPProject Memory
 	*/
 	public static int do_handlePageFault(ThreadCB thread, int referenceType, PageTableEntry page) {
-		if (page.isValid())
+		if (page.isValid()) {
+			page.notifyThreads();
+			ThreadCB.dispatch();
 			return FAILURE;
-		else if (/*if all frames are locked/reserved*/page.isValid())
-			return NotEnoughMemory;
-		else if (/*if thread that caused the page fault can be killed*/page.isValid())
-			return FAILURE;
-		
-		SystemEvent event = new SystemEvent(userOption);
-
-		switch (referenceType) {
-			case MemoryRead:
-				
-				break;
-			case MemoryWrite:
-				
-				break;
-			case MemoryLock:
-				
-				break;
 		}
-		event.notifyThreads();
-		ThreadCB.dispatch();
+		
+		SystemEvent pfEvent = new SystemEvent("PageFault");
+		thread.suspend(pfEvent);
+		
+		boolean flag = true;
+		FrameTableEntry pfFrame = null;
+		
+		for (FrameTableEntry frame : MMU.frameTable) {
+			boolean locked = frame.getLockCount() > 0;
+			boolean reserved = frame.isReserved();
+			if (!locked && !reserved) {
+				pfFrame = frame;
+				pfFrame.setReserved(thread.getTask());
+				flag = false;
+				break;
+			}
+		}
+		
+		if (flag) {
+			page.notifyThreads();
+			pfEvent.notifyThreads();
+			ThreadCB.dispatch();
+			return NotEnoughMemory;
+		}
+		
+		page.setValidatingThread(thread);
+		
+		try {
+			PageTableEntry pfFramePage = pfFrame.getPage();
+			
+			if (pfFramePage != null && pfFrame.isDirty()) {
+				//swap
+			}
+		} catch (NullPointerException e) {}
+		
+		//a LOT of garbage code
+		page.setValidatingThread(null);
 		return 0;
 	}
 }
