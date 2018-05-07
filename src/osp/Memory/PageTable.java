@@ -21,10 +21,10 @@ public class PageTable extends IflPageTable {
 	   @OSPProject Memory
 	*/
 	public void do_deallocateMemory() {
-		PageTableEntry.getFrame();
+		//PageTableEntry.getFrame();
 		PageTableEntry[] taskPageTable = getTask().getPageTable().pages;
 		for (PageTableEntry page : taskPageTable) {
-			setPage()
+			page.getFrame().setPage(null);
 		}
 	}
 }
