@@ -102,10 +102,50 @@ public class PageFaultHandler extends IflPageFaultHandler {
 			PageTableEntry pfFramePage = pfFrame.getPage();
 			
 			if (pfFramePage != null && pfFrame.isDirty()) {
-				//swap
+				OpenFile swapFile = pfFramePage.getTask().getSwapFile();
+				if (thread.getStatus() != ThreadKill) {
+					swapFile.write(pfFramePage.getID(), pfFramePage, thread);
+					pfFrame.setDirty(false);
+				}
+				else {
+					page.notifyThreads();
+					pfEvent.notifyThreads();
+					ThreadCB.dispatch();
+					return FAILURE;
+				}
+			}
+			else if (pfFramePage != null) {
+				pfFrame.setReferenced(false);
+				pfFramePage.setValid(false);
+				pfFramePage.setFrame(null);
+				if (pfFramePage.getTask().getStatus() != TaskTerm)
+					pfFrame.setPage(null);
 			}
 		} catch (NullPointerException e) {}
 		
+		if (thread.getStatus() == ThreadKill) {
+			page.notifyThreads();
+			page.setValidatingThread(null);
+			page.setFrame(null);
+			pfEvent.notifyThreads();
+			ThreadCB.dispatch();
+			return FAILURE;
+		}
+		else {
+			page.setFrame(pfFrame);
+			OpenFile swapFile = page.getTask().getSwapFile();
+			swapFile.read(page.getID(), page, thread);
+			pfFrame.setDirty(false);
+		}
+		
+		if (thread.getStatus() == ThreadKill) {
+			page.notifyThreads();
+			page.setValidatingThread(null);
+			page.setFrame(null);
+			pfEvent.notifyThreads();
+			ThreadCB.dispatch();
+			return FAILURE;
+		}
 		//a LOT of garbage code
 		page.setValidatingThread(null);
 		return 0;
