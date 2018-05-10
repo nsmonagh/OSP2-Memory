@@ -12,10 +12,9 @@ public class MMU extends IflMMU {
 	static FrameTableEntry[] frameTable;
 	
 	public static void init() {
-		for () {
+		for (int i = 0; i < MMU.getFrameTableSize(); i++) {
 			setFrame(i, new FrameTableEntry(i));
 		}
-		setFrame(bh, null);
 		frameTable = new FrameTableEntry[MMU.getFrameTableSize()];
 	}
 
