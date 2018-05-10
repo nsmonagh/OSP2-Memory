@@ -36,9 +36,24 @@ public class PageTableEntry extends IflPageTableEntry {
 	 */
 	public int do_lock(IORB iorb) {
 		
+		ThreadCB thread = iorb.getThread();
+		
+		
 		if (!isValid()) {
-			PageFaultHandler.handlePageFault(getValidatingThread(), );
+			if(getValidatingThread() == null) {
+				PageFaultHandler.handlePageFault(thread, MemoryLock, this);
+			} 
+			else {
+				if(getValidatingThread()!= thread) {
+					thread.suspend(this);
+					if(thread.getStatus() == ThreadKill)
+						return FAILURE;
+				}
+			}
 		}
+		
+		
+		getFrame().incrementLockCount();
 		
 		return SUCCESS;
 	}
@@ -51,7 +66,9 @@ public class PageTableEntry extends IflPageTableEntry {
 	*/
 	public void do_unlock() {
 		
-		if (getLockCount() > 0)
-			FrameTableEntry.decrementLockCount();
+		if (getFrame().getLockCount() > 0)
+			getFrame().decrementLockCount();
+		else
+			System.err.println("The locks value went negative. This indicates an error.");
 	}
 }
