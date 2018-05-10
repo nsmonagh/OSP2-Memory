@@ -1,10 +1,9 @@
 package osp.Memory;
 
 import java.lang.Math;
-import osp.Tasks.*;
-import osp.Utilities.*;
-import osp.IFLModules.*;
-import osp.Hardware.*;
+
+import osp.IFLModules.IflPageTable;
+import osp.Tasks.TaskCB;
 
 public class PageTable extends IflPageTable {
 	PageTableEntry[] pages;
@@ -12,19 +11,20 @@ public class PageTable extends IflPageTable {
 	public PageTable(TaskCB ownerTask) {
 		super(ownerTask);
 		pages = new PageTableEntry[(int) Math.pow(2, MMU.getPageAddressBits())];
+		for (int i = 0; i < pages.length; i++) {
+			pages[i] = new PageTableEntry(this, i);
+		}
 	}
 
-	/**
-	   Frees up main memory occupied by the task.
-	   Then unreserves the freed pages, if necessary.
-
-	   @OSPProject Memory
-	*/
 	public void do_deallocateMemory() {
-		//PageTableEntry.getFrame();
-		PageTableEntry[] taskPageTable = getTask().getPageTable().pages;
-		for (PageTableEntry page : taskPageTable) {
-			page.getFrame().setPage(null);
+		TaskCB task = getTask();
+		for (FrameTableEntry frame : MMU.frameTable) {
+			//PageTableEntry page = frame.getPage();
+			frame.setPage(null);
+			frame.setDirty(false);
+			frame.setReferenced(false);
+			if (task == frame.getReserved())
+				frame.setUnreserved(task);
 		}
 	}
 }

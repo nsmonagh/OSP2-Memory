@@ -8,22 +8,19 @@ import osp.Utilities.*;
 import osp.Hardware.*;
 import osp.Interrupts.*;
 
-/**
-	The MMU class contains the student code that performs the work of
-	handling a memory reference.  It is responsible for calling the
-	interrupt handler if a page fault is required.
-
-	@OSPProject Memory
-*/
 public class MMU extends IflMMU {
 	static FrameTableEntry[] frameTable;
 	
 	public static void init() {
+		for () {
+			setFrame(i, new FrameTableEntry(i));
+		}
+		setFrame(bh, null);
 		frameTable = new FrameTableEntry[MMU.getFrameTableSize()];
 	}
 
 	/**
-	   This method handlies memory references. The method must 
+	   This method handles memory references. The method must 
 	   calculate, which memory page contains the memoryAddress,
 	   determine, whether the page is valid, start page fault 
 	   by making an interrupt if the page is invalid, finally, 
