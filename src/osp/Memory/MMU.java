@@ -9,13 +9,13 @@ import osp.Hardware.*;
 import osp.Interrupts.*;
 
 public class MMU extends IflMMU {
-	static FrameTableEntry[] frameTable;
+	static ArrayList<FrameTableEntry> frameTable;
 	
 	public static void init() {
 		for (int i = 0; i < MMU.getFrameTableSize(); i++) {
 			setFrame(i, new FrameTableEntry(i));
 		}
-		frameTable = new FrameTableEntry[MMU.getFrameTableSize()];
+		frameTable = new ArrayList<FrameTableEntry>();
 	}
 
 	/**
