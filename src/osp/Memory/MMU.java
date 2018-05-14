@@ -1,12 +1,11 @@
 package osp.Memory;
 
-import java.util.*;
-import osp.IFLModules.*;
-import osp.Threads.*;
-import osp.Tasks.*;
-import osp.Utilities.*;
-import osp.Hardware.*;
-import osp.Interrupts.*;
+import java.util.ArrayList;
+
+import osp.Hardware.CPU;
+import osp.IFLModules.IflMMU;
+import osp.Interrupts.InterruptVector;
+import osp.Threads.ThreadCB;
 
 public class MMU extends IflMMU {
 	static ArrayList<FrameTableEntry> frameTable;
@@ -18,27 +17,33 @@ public class MMU extends IflMMU {
 		frameTable = new ArrayList<FrameTableEntry>();
 	}
 
-	/**
-	   This method handles memory references. The method must 
-	   calculate, which memory page contains the memoryAddress,
-	   determine, whether the page is valid, start page fault 
-	   by making an interrupt if the page is invalid, finally, 
-	   if the page is still valid, i.e., not swapped out by another 
-	   thread while this thread was suspended, set its frame
-	   as referenced and then set it as dirty if necessary.
-	   (After pagefault, the thread will be placed on the ready queue, 
-	   and it is possible that some other thread will take away the frame.)
-	   
-	   @param memoryAddress A virtual memory address
-	   @param referenceType The type of memory reference to perform 
-	   @param thread that does the memory access
-	   (e.g., MemoryRead or MemoryWrite).
-	   @return The referenced page.
-
-	   @OSPProject Memory
-	*/
 	static public PageTableEntry do_refer(int memoryAddress, int referenceType, ThreadCB thread) {
-		return null;
+		int pageAddress = (int) (memoryAddress/Math.pow(2, getVirtualAddressBits()-getPageAddressBits()));
+		PageTableEntry page = getPTBR().pages[pageAddress];
+		FrameTableEntry pageFrame = page.getFrame();
+		
+		if (page.isValid()) {
+			frameTable.add(pageFrame);
+			pageFrame.setReferenced(true);
+			if (referenceType == MemoryWrite)
+				pageFrame.setDirty(true);
+			return page;
+		}
+		else
+			if (page.getValidatingThread() != null)
+				thread.suspend(page);
+			else {
+				InterruptVector.setPage(page);
+				InterruptVector.setReferenceType(referenceType);
+				InterruptVector.setThread(thread);
+				CPU.interrupt(PageFault);
+			}
+		if (thread.getStatus() != ThreadKill) {
+			pageFrame.setReferenced(true);
+			if (referenceType == MemoryWrite)
+				pageFrame.setDirty(true);
+		}
+		return page;
 	}
 
 	public static void atError() {}
